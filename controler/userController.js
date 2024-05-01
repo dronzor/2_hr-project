@@ -1,10 +1,12 @@
 import asyncHandler from "express-async-handler";
 import { User } from "../models/userModels.js";
 import  bcrypt  from "bcrypt";
+import jwt from "jsonwebtoken";
 //@desc Register a user
 //@route POST /api/users/register
 //@access public
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => 
+{
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
       res.status(400);
@@ -13,7 +15,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const userAvailable= await User.findOne({email})
     if(userAvailable){
         res.status(400)
-        throw new Error("email already exist");
+        throw new Error("user already registered");
     }
 
     //hash password
@@ -40,12 +42,27 @@ const registerUser = asyncHandler(async (req, res) => {
 //@route POST /api/users/register
 //@access public
 const loginrUser = asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    const {email, password } = req.body;
+    if (!email || !password) {
       res.status(400);
-      throw new Error("login");
+      throw new Error("All fields are mandatory!");
     }
-    res.json("login user")
+    const user= await User.findOne({email})
+    //compare password with hashedpassword
+    if(user && (await bcrypt.compare(password,user.password))){
+      const accessToken=jwt.sign({
+        username:user.username,
+        email:user.email,
+        id:user.id,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+        {expiresIn:"1m"}
+      );
+      res.status(200).json({accessToken})
+      }else{
+        res.status(401)
+        throw new Error("email or password not valid")
+      }
 })
 //@desc Register a user
 //@route POST /api/users/register
