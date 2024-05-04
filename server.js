@@ -10,7 +10,7 @@ connectDb()
 const app=Express()
 
 app.use(Express.json())
-app.use("/api/contact",router)
+app.use("/api/contacts",router)
 app.use("/api/users",router1)
 app.use(errorhandler)
 

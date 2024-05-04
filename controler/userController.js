@@ -35,13 +35,12 @@ const registerUser = asyncHandler(async (req, res) =>
       res.status(400)
       throw new Error("user data not valid")
     }
-    res.json("reg user")
 })
 
 //@desc Register a user
 //@route POST /api/users/register
 //@access public
-const loginrUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     const {email, password } = req.body;
     if (!email || !password) {
       res.status(400);
@@ -51,13 +50,15 @@ const loginrUser = asyncHandler(async (req, res) => {
     //compare password with hashedpassword
     if(user && (await bcrypt.compare(password,user.password))){
       const accessToken=jwt.sign({
-        username:user.username,
-        email:user.email,
-        id:user.id,
+        user:{
+          username:user.username,
+          email:user.email,
+          id:user.id,
+        },
       },
-      process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn:"1m"}
-      );
+        process.env.ACCESS_TOKEN_SECRET,
+          {expiresIn:"15m"}
+        );
       res.status(200).json({accessToken})
       }else{
         res.status(401)
@@ -68,7 +69,7 @@ const loginrUser = asyncHandler(async (req, res) => {
 //@route POST /api/users/register
 //@access public
 const currentUser = asyncHandler(async (req, res) => {
-  res.json("current user info")
+  res.json(req.user)
 })
 
-export {registerUser,loginrUser,currentUser}
+export {registerUser,loginUser,currentUser}

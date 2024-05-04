@@ -1,13 +1,16 @@
 import  Express  from "express";
 const router=Express.Router()
-import { getController,postController,putController,deleteController } from "../controler/contactController.js"; //use of controller
+import { deleteContact, getContact, postContact, putContact, } from "../controler/contactController.js"; //use of controller
+import { validateToken } from "../middleware/validateTokenHandler.js";
 
-router.route("/").get(getController)
+router.use(validateToken)
 
-router.route("/").post(postController)
+router.route("/").get(getContact)
 
-router.route("/:id").put(putController)
+router.route("/").post(postContact)
 
-router.route("/:id").delete(deleteController)
+router.route("/:id").put(putContact)
+
+router.route("/:id").delete(deleteContact)
 
 export default router
